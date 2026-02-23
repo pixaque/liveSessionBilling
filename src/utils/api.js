@@ -9,6 +9,7 @@ api.interceptors.response.use(
 
 export default api;
 
+
 // ── Typed helpers ────────────────────────────────────────────
 export const productsApi = {
   list:       (params) => api.get('/products', { params }),
@@ -38,12 +39,14 @@ export const sessionsApi = {
 };
 
 export const ordersApi = {
-  list:         (params) => api.get('/orders', { params }),
-  get:          (id)     => api.get(`/orders/${id}`),
-  create:       (data)   => api.post('/orders', data),
-  update:       (id, d)  => api.put(`/orders/${id}`, d),
-  updateStatus: (id, s)  => api.patch(`/orders/${id}/status`, { status: s }),
-  remove:       (id)     => api.delete(`/orders/${id}`),
+  list:          (params) => api.get('/orders', { params }),
+  get:           (id)     => api.get(`/orders/${id}`),
+  checkExisting: (params) => api.get('/orders/check-existing', { params }),
+  create:        (data)   => api.post('/orders', data),
+  merge:         (id, d)  => api.patch(`/orders/${id}/merge`, d),
+  update:        (id, d)  => api.put(`/orders/${id}`, d),
+  updateStatus:  (id, s)  => api.patch(`/orders/${id}/status`, { status: s }),
+  remove:        (id)     => api.delete(`/orders/${id}`),
 };
 
 export const dispatchApi = {
