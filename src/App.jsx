@@ -90,8 +90,8 @@ function App() {
         <div className="page">{renderPage()}</div>
       </main>
       {/* Invoice + QR print targets */}
-      <div id="invoice-root" />
-      <div id="qr-root" />
+      <div id="invoice-root" className='print-active' />
+      <div id="qr-root" className='print-active' />
     </div>
   );
 }

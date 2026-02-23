@@ -256,17 +256,13 @@ textarea.form-input { resize: vertical; min-height: 64px; }
 .pc-lbl { font-size: 9px; color: var(--t3); font-family: var(--fm); text-transform: uppercase; letter-spacing: 1px; }
 .pc-val { font-size: 15px; font-weight: 800; font-family: var(--fd); margin-top: 3px; }
 
-/* ── Invoice print ── */
 @media print {
-  body > *:not(#invoice-root) { display: none !important; }
-  #invoice-root { display: block !important; position: fixed; inset: 0; background: white; z-index: 9999; padding: 32px; }
-}
-#invoice-root { display: none; }
-
-/* ── QR sheet print ── */
-@media print {
-  body > *:not(#qr-root) { display: none !important; }
-  #qr-root { display: block !important; position: fixed; inset: 0; background: white; z-index: 9999; padding: 24px; }
+  body * { visibility: hidden; }
+  #invoice-root, #invoice-root * { visibility: visible; }
+  #invoice-root { position: fixed; inset: 0; background: white; z-index: 9999; padding: 30px; }
+  #qr-root, #qr-root * { visibility: visible; }
+  #qr-root { position: fixed; inset: 0; background: white; z-index: 9999; padding: 20px; }
+  .no-print {display: none !important;}
 }
 #qr-root { display: none; }
 

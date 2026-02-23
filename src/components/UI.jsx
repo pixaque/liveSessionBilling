@@ -167,6 +167,9 @@ export function printInvoice(order, settings = {}) {
   const invNum = `INV-${String(order.id).padStart(5, '0')}`;
   el.innerHTML = `
     <div style="font-family:'Instrument Sans',sans-serif;background:white;color:#111;padding:40px;max-width:720px;margin:0 auto;">
+
+      <button class="btn btn-xs btn-blue no-print" onclick="document.getElementById('invoice-root').style.display='none'">X</button>
+
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #111">
         <div>
           <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#ff6b35">${settings.store_name || 'LiveDrop Store'}</div>
@@ -227,9 +230,11 @@ export function printInvoice(order, settings = {}) {
         Thank you for your purchase! · ${settings.store_name || 'LiveDrop Store'} · Pakistan
       </div>
     </div>`;
+    el.classList.add("print-active");
+
   el.style.display = 'block';
   setTimeout(() => {
     window.print();
-    setTimeout(() => { el.style.display = 'none'; }, 1200);
+    el.classList.remove("print-active");
   }, 250);
 }
