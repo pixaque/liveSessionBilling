@@ -197,6 +197,7 @@ export default function NewOrder({ settings, onNavigate }) {
     qc.invalidateQueries({ queryKey:['orders'] });
     qc.invalidateQueries({ queryKey:['dashboard'] });
     qc.invalidateQueries({ queryKey:['products'] });
+    qc.invalidateQueries({ queryKey:['dispatch'] });
   };
 
   const resetCart = () => {
