@@ -236,5 +236,6 @@ export function printInvoice(order, settings = {}) {
   setTimeout(() => {
     window.print();
     el.classList.remove("print-active");
+    setTimeout(() => { el.style.display = 'none'; }, 1200);
   }, 250);
 }
