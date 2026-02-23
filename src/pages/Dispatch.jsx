@@ -29,7 +29,6 @@ export default function Dispatch({ settings }) {
 
   const pendingCount = tab === 'pending' ? groups.reduce((a, g) => a + g.orders.length, 0) : 0;
 
-  if (isLoading) return <LoadingPage />;
 
   return (
     <>
@@ -48,6 +47,8 @@ export default function Dispatch({ settings }) {
           </button>
         )}
       </div>
+
+      { isLoading ? <LoadingPage /> : ""}
 
       {groups.length === 0
         ? <EmptyState icon="🚚" text={`No ${tab} orders`} />

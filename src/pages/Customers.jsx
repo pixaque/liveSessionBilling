@@ -106,7 +106,7 @@ export default function Customers({ settings }) {
   };
 
   if (detail) return <CustomerDetail customer={detail} onBack={() => setDetail(null)} settings={settings} />;
-  if (isLoading) return <LoadingPage />;
+  
 
   return (
     <>
@@ -115,6 +115,8 @@ export default function Customers({ settings }) {
           value={search} onChange={e => setSearch(e.target.value)} />
         <button className="btn btn-primary" onClick={openAdd}>+ New Customer</button>
       </div>
+
+      {isLoading ? <LoadingPage /> : ""}
 
       {customers.length === 0 ? <EmptyState icon="👥" text="No customers found" /> :
         customers.map(c => (

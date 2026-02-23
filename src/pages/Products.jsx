@@ -47,8 +47,6 @@ export default function Products() {
       market_high: Number(form.market_high)||Math.round(price*1.3) });
   };
 
-  if (isLoading) return <LoadingPage />;
-
   const catOptions = ['All', ...categories];
 
   return (
@@ -68,6 +66,8 @@ export default function Products() {
         </div>
       </div>
       <div style={{ fontSize: 12, color: 'var(--t3)', marginBottom: 14 }}>{products.length} product(s)</div>
+
+      {isLoading ? <LoadingPage /> : ""}
 
       {products.length === 0 ? <EmptyState icon="📦" text="No products found" /> :
         view === 'grid' ? (

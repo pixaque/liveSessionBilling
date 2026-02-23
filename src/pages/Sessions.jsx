@@ -97,7 +97,7 @@ export default function Sessions({ settings }) {
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
 
   if (detail) return <SessionDetail sessionId={detail} onBack={()=>setDetail(null)} settings={settings} />;
-  if (isLoading) return <LoadingPage />;
+  
 
   return (
     <>
@@ -105,6 +105,8 @@ export default function Sessions({ settings }) {
         <div style={{fontSize:13,color:'var(--t3)'}}>{sessions.length} session(s)</div>
         <button className="btn btn-primary" onClick={()=>{ setForm({name:'',session_date:new Date().toISOString().split('T')[0],fb_url:'',notes:'',status:'active'}); setModal('add'); }}>+ New Session</button>
       </div>
+
+      { isLoading ? <LoadingPage /> : ""}
 
       {sessions.length===0 ? <EmptyState icon="📦" text="No sessions yet" /> :
         sessions.map(s => (
