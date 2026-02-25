@@ -151,10 +151,10 @@ function OrderCard({ order, tab, onPack, onDispatch, settings, isDispatching }) 
 
       {/* Totals row */}
       <div style={{ display:'flex', gap:14, marginTop:8, paddingTop:8, borderTop:'1px solid var(--b1)', fontSize:11, color:'var(--t3)', fontFamily:'var(--fm)', justifyContent:'flex-end' }}>
-        <span>Sub: {fmt(order.subtotal)}</span>
-        <span>Delivery: {fmt(order.delivery)}</span>
-        {Number(order.discount) > 0 && <span>Disc: −{fmt(order.discount)}</span>}
-        <span style={{ color:'var(--green)', fontWeight:700 }}>Total: {fmt(order.total)}</span>
+        <span>Sub: {fmt(parseFloat(order.subtotal) || 0)}</span>
+        <span>Delivery: {fmt(parseFloat(order.delivery) || 0)}</span>
+        {(parseFloat(order.discount) || 0) > 0 && <span>Disc: −{fmt(parseFloat(order.discount))}</span>}
+        <span style={{ color:'var(--green)', fontWeight:700 }}>Total: {fmt(parseFloat(order.total) || 0)}</span>
       </div>
     </div>
   );
@@ -235,7 +235,9 @@ export default function Dispatch({ settings }) {
       {groups.length === 0
         ? <EmptyState icon="🚚" text={`No ${tab} orders`} />
         : groups.map(g => {
-            const totalAmt = g.orders.reduce((a,o) => a + Number(o.total), 0);
+            const totalAmt = g.orders.reduce((a,o) => a + (parseFloat(o.total) || 0), 0);
+            const totalDel = g.orders.reduce((a,o) => a + (parseFloat(o.delivery) || 0), 0);
+            const totalDis = g.orders.reduce((a,o) => a + (parseFloat(o.discount) || 0), 0);
 
             return (
               <div key={g.customer_id} className="dispatch-card" style={{ marginBottom:12 }}>

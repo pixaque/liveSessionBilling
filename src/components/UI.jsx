@@ -160,82 +160,121 @@ export function PriceChips({ product }) {
   );
 }
 
-// ── Invoice print (A4) ────────────────────────────────────────
+// ── Invoice print (A4 via hidden iframe) ──────────────────────
+// Uses an iframe instead of popup or same-page div so the main
+// page scroll height has zero effect on pagination.
 export function printInvoice(order, settings = {}) {
-  const el = document.getElementById('invoice-root');
-  if (!el) return;
   const invNum = `INV-${String(order.id).padStart(5, '0')}`;
-  el.innerHTML = `
-    <div style="font-family:'Instrument Sans',sans-serif;background:white;color:#111;padding:40px;max-width:720px;margin:0 auto;">
 
-      <button class="btn btn-xs btn-blue no-print" onclick="document.getElementById('invoice-root').style.display='none'">X</button>
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>${invNum}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: white; color: #111; font-family: 'Instrument Sans', sans-serif; }
+    @page { margin: 1cm; size: A4 portrait; }
+  </style>
+</head>
+<body>
+  <div style="max-width:720px;margin:0 auto;padding:24px;">
 
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #111">
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#ff6b35">${settings.store_name || 'LiveDrop Store'}</div>
-          <div style="font-size:11px;color:#888;margin-top:4px">${settings.store_phone || ''} · ${settings.store_address || 'Pakistan'}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700">${invNum}</div>
-          <div style="font-size:12px;color:#666;margin-top:4px">${new Date(order.created_at).toLocaleDateString('en-PK',{day:'2-digit',month:'long',year:'numeric'})}</div>
-          ${order.session_name ? `<div style="font-size:11px;color:#888;margin-top:2px">Session: ${order.session_name}</div>` : ''}
-        </div>
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #111">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#ff6b35">${settings.store_name || 'LiveDrop Store'}</div>
+        <div style="font-size:11px;color:#888;margin-top:4px">${settings.store_phone || ''} · ${settings.store_address || 'Pakistan'}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
-        <div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#888;font-family:'DM Mono',monospace;margin-bottom:6px">Bill To</div>
-          <div style="font-size:15px;font-weight:700;margin-bottom:3px">${order.customer_name}</div>
-          <div style="font-size:12px;color:#555;line-height:1.7">${order.customer_phone || ''}<br>${order.customer_email || ''}<br>${order.customer_address || ''}</div>
-        </div>
-        <div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#888;font-family:'DM Mono',monospace;margin-bottom:6px">Sold By</div>
-          <div style="font-size:15px;font-weight:700;margin-bottom:3px">${settings.store_name || 'LiveDrop Store'}</div>
-          <div style="font-size:12px;color:#555;line-height:1.7">Facebook Live Commerce<br>Pakistan</div>
-        </div>
+      <div style="text-align:right">
+        <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700">${invNum}</div>
+        <div style="font-size:12px;color:#666;margin-top:4px">${new Date(order.created_at).toLocaleDateString('en-PK',{day:'2-digit',month:'long',year:'numeric'})}</div>
+        ${order.session_name ? `<div style="font-size:11px;color:#888;margin-top:2px">Session: ${order.session_name}</div>` : ''}
       </div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-        <thead>
-          <tr style="background:#f5f5f5">
-            <th style="padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">#</th>
-            <th style="padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Product</th>
-            <th style="padding:9px 12px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Qty</th>
-            <th style="padding:9px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Unit Price</th>
-            <th style="padding:9px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${(order.items || []).map((it, i) => `
-            <tr style="border-bottom:1px solid #eee">
-              <td style="padding:10px 12px;color:#888">${i + 1}</td>
-              <td style="padding:10px 12px;font-weight:600">${it.emoji || ''} ${it.product_name}</td>
-              <td style="padding:10px 12px;text-align:center">${it.qty}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace">Rs. ${Number(it.unit_price).toLocaleString('en-PK')}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700">Rs. ${Number(it.line_total).toLocaleString('en-PK')}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-      <div style="display:flex;justify-content:flex-end">
-        <div style="width:260px">
-          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#555"><span>Subtotal</span><span>Rs. ${Number(order.subtotal).toLocaleString('en-PK')}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#555"><span>Delivery Charges</span><span>Rs. ${Number(order.delivery).toLocaleString('en-PK')}</span></div>
-          ${Number(order.discount) > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#e55"><span>Discount</span><span>− Rs. ${Number(order.discount).toLocaleString('en-PK')}</span></div>` : ''}
-          <div style="display:flex;justify-content:space-between;border-top:2px solid #111;padding-top:10px;margin-top:6px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800"><span>Grand Total</span><span>Rs. ${Number(order.total).toLocaleString('en-PK')}</span></div>
-          <div style="text-align:right;margin-top:8px">
-            <span style="font-size:11px;text-transform:uppercase;letter-spacing:2px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:4px;font-weight:700;${order.status==='dispatched'?'border:2px solid #00d4a0;color:#00d4a0':'border:2px solid #ff6b35;color:#ff6b35'}">${(order.status || '').toUpperCase()}</span>
-          </div>
-        </div>
-      </div>
-      ${order.notes ? `<div style="margin-top:20px;padding:10px 14px;background:#f9f9f9;border-radius:6px;font-size:12px;color:#555">📝 Note: ${order.notes}</div>` : ''}
-      <div style="margin-top:28px;padding-top:18px;border-top:1px solid #ddd;font-size:12px;color:#888;text-align:center">
-        Thank you for your purchase! · ${settings.store_name || 'LiveDrop Store'} · Pakistan
-      </div>
-    </div>`;
-    el.classList.add("print-active");
+    </div>
 
-  el.style.display = 'block';
-  setTimeout(() => {
-    window.print();
-    el.classList.remove("print-active");
-    setTimeout(() => { el.style.display = 'none'; }, 1200);
-  }, 250);
+    <!-- Bill To / Sold By -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#888;font-family:'DM Mono',monospace;margin-bottom:6px">Bill To</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:3px">${order.customer_name}</div>
+        <div style="font-size:12px;color:#555;line-height:1.7">
+          ${order.customer_phone || ''}
+          ${order.customer_email ? '<br>' + order.customer_email : ''}
+          ${order.customer_address ? '<br>' + order.customer_address : ''}
+          ${(order.city || order.customer_city) ? '<br>' + (order.city || order.customer_city) : ''}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#888;font-family:'DM Mono',monospace;margin-bottom:6px">Sold By</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:3px">${settings.store_name || 'LiveDrop Store'}</div>
+        <div style="font-size:12px;color:#555;line-height:1.7">Facebook Live Commerce<br>Pakistan</div>
+      </div>
+    </div>
+
+    <!-- Items table -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+      <thead>
+        <tr style="background:#f5f5f5">
+          <th style="padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">#</th>
+          <th style="padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Product</th>
+          <th style="padding:9px 12px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Qty</th>
+          <th style="padding:9px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Unit Price</th>
+          <th style="padding:9px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#555;font-family:'DM Mono',monospace">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${(order.items || []).map((it, i) => `
+          <tr style="border-bottom:1px solid #eee">
+            <td style="padding:10px 12px;color:#888">${i + 1}</td>
+            <td style="padding:10px 12px;font-weight:600">${it.emoji || ''} ${it.product_name}</td>
+            <td style="padding:10px 12px;text-align:center">${it.qty}</td>
+            <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace">Rs. ${Number(it.unit_price).toLocaleString('en-PK')}</td>
+            <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700">Rs. ${Number(it.line_total).toLocaleString('en-PK')}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+      <div style="width:260px">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#555"><span>Subtotal</span><span>Rs. ${Number(order.subtotal).toLocaleString('en-PK')}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#555"><span>Delivery Charges</span><span>Rs. ${Number(order.delivery).toLocaleString('en-PK')}</span></div>
+        ${Number(order.discount) > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#e55"><span>Discount</span><span>− Rs. ${Number(order.discount).toLocaleString('en-PK')}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between;border-top:2px solid #111;padding-top:10px;margin-top:6px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800"><span>Grand Total</span><span>Rs. ${Number(order.total).toLocaleString('en-PK')}</span></div>
+        <div style="text-align:right;margin-top:8px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:2px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:4px;font-weight:700;${order.status==='dispatched'?'border:2px solid #00d4a0;color:#00d4a0':'border:2px solid #ff6b35;color:#ff6b35'}">${(order.status||'').toUpperCase()}</span>
+        </div>
+      </div>
+    </div>
+
+    ${order.notes ? `<div style="margin-bottom:20px;padding:10px 14px;background:#f9f9f9;border-radius:6px;font-size:12px;color:#555">📝 Note: ${order.notes}</div>` : ''}
+
+    <!-- Footer -->
+    <div style="padding-top:18px;border-top:1px solid #ddd;font-size:12px;color:#888;text-align:center">
+      Thank you for your purchase! · ${settings.store_name || 'LiveDrop Store'} · Pakistan
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  // Hidden iframe — completely isolated from main page scroll height
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;border:none;opacity:0;pointer-events:none;';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  iframe.contentWindow.document.fonts.ready.then(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    setTimeout(() => {
+      if (document.body.contains(iframe)) document.body.removeChild(iframe);
+    }, 2000);
+  });
 }
